@@ -1116,14 +1116,31 @@ function Location() {
 
 function Contact() {
   const [form, setForm] = useState({ name: "", phone: "", message: "" });
-  const onSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim() || !form.phone.trim() || !form.message.trim()) {
       toast.error("Please fill in all fields.");
       return;
     }
-    toast.success("Thank you! We'll get back to you shortly.");
-    setForm({ name: "", phone: "", message: "" });
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:5000/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Something went wrong.");
+      toast.success("Thank you! We'll get back to you shortly. 🙏");
+      setForm({ name: "", phone: "", message: "" });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to send. Please call us directly.";
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <section id="contact" className="py-24 lg:py-32">
@@ -1223,8 +1240,8 @@ function Contact() {
                 className="mt-2"
               />
             </div>
-            <Button type="submit" className="w-full rounded-full bg-primary py-6 text-base">
-              Send Inquiry <ArrowRight className="ml-1 size-4" />
+            <Button type="submit" disabled={loading} className="w-full rounded-full bg-primary py-6 text-base">
+              {loading ? "Sending..." : <> Send Inquiry <ArrowRight className="ml-1 size-4" /> </>}
             </Button>
           </div>
         </form>
@@ -1242,7 +1259,7 @@ function Footer() {
             <img
               src="/logo1.png"
               alt="Sahana Cottages"
-              className="h-12 w-auto object-contain brightness-0 invert"
+              className="h-12 w-auto object-contain"
             />
           </div>
           <p className="mt-4 max-w-md text-sm text-primary-foreground/70">

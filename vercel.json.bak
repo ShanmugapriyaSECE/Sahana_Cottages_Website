@@ -1,0 +1,7 @@
+{
+  "name": "sahana-cottages-ultimate",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

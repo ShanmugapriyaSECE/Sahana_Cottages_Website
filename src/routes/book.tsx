@@ -123,6 +123,23 @@ function BookPage() {
     setIsRedirecting(true);
     setBookingFailed(false);
     sessionStorage.setItem("booking_initiated", "true");
+
+    // Save booking request to backend MongoDB
+    fetch("http://localhost:5000/api/booking", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "Guest",
+        phone: "Not Provided",
+        roomType: form.roomType,
+        checkin: form.checkin,
+        checkout: form.checkout,
+        adults: form.adults,
+        children: form.children,
+        numRooms: form.numRooms,
+      }),
+    }).catch((err) => console.error("Failed to save booking to backend:", err));
+
     const url = buildAxisUrl(
       form.checkin,
       form.checkout,
